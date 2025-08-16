@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Videos{% endblock %}
+{% block content %}
+<h1>Video Gallery</h1>
+<div class="gallery">
+  {% for r in recordings %}
+    <div class="card">
+      <video controls playsinline preload="metadata" src="{{ r.file.url }}" class="video"></video>
+      <div class="meta small">{{ r.device.name }} · {{ r.created_at }}</div>
+    </div>
+  {% empty %}
+    <p>No videos.</p>
+  {% endfor %}
+</div>
+{% endblock %}

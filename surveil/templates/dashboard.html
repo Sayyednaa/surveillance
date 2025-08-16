@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<h1>Dashboard</h1>
+
+<section class="card">
+  <h2>Devices</h2>
+  <div class="list">
+    {% for d in devices %}
+      <div class="row">
+        <div>
+          <div class="title">{{ d.name }}</div>
+          <div class="meta">{% if d.is_online %}🟢 Online{% else %}⚪ Offline{% endif %} · Last seen: {{ d.last_seen|default:"—" }}</div>
+          <div class="meta">Location: {{ d.latitude|default:"?" }}, {{ d.longitude|default:"?" }}</div>
+        </div>
+        <div class="actions">
+          <button class="btn" onclick="toggleRecording({{ d.id }})">
+            {% if d.recording_enabled %}Stop{% else %}Start{% endif %}
+          </button>
+        </div>
+      </div>
+    {% empty %}
+      <p>No devices yet.</p>
+    {% endfor %}
+  </div>
+  <div class="row">
+    <form action="{% url 'device_pair' %}" method="post" target="_blank">
+      {% csrf_token %}
+      <input name="name" placeholder="Device name" class="input">
+      <button class="btn">Generate Pairing QR</button>
+    </form>
+  </div>
+</section>
+
+<section class="card">
+  <h2>Recent Motion</h2>
+  <ul class="list">
+    {% for m in motions %}
+      <li class="row">
+        <div class="title">Magnitude: {{ m.magnitude }}</div>
+        <div class="meta">{{ m.timestamp }} on {{ m.device.name }}</div>
+      </li>
+    {% empty %}
+      <li>No motion yet.</li>
+    {% endfor %}
+  </ul>
+  <canvas id="motionChart"></canvas>
+</section>
+
+<section class="card">
+  <h2>Recent Recordings</h2>
+  <ul class="list">
+    {% for r in recents %}
+      <li class="row">
+        <div class="title">{{ r.device.name }} — {{ r.created_at }}</div>
+        <div class="meta">{{ r.duration_ms }} ms</div>
+        <div><a class="btn" href="{{ r.file.url }}" target="_blank">Play</a></div>
+      </li>
+    {% empty %}
+      <li>No recordings yet.</li>
+    {% endfor %}
+  </ul>
+</section>
+
+<script src="{% static 'surveil/dashboard.js' %}"></script>
+<script>
+async function toggleRecording(deviceId) {
+  const res = await fetch('/api/toggle_recording/' + deviceId + '/');
+  const data = await res.json();
+  location.reload();
+}
+</script>
+{% endblock %}

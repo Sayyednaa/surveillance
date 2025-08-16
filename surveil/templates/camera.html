@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block title %}Camera Mode{% endblock %}
+{% block content %}
+<h1>Camera Mode</h1>
+<div class="card">
+  <video id="preview" autoplay playsinline muted class="video"></video>
+  <canvas id="motionCanvas" class="hidden"></canvas>
+  <div class="row">
+    <button id="startBtn" class="btn">Start</button>
+    <button id="stopBtn" class="btn warn">Stop</button>
+  </div>
+  <div class="row small muted" id="status">Idle</div>
+</div>
+
+<script>
+const TOKEN = "{{ device.token }}";
+</script>
+<script src="{% static 'surveil/camera.js' %}"></script>
+{% endblock %}
